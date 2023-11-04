@@ -2,6 +2,7 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import japanize_matplotlib
 import requests
 import json
 import os
@@ -19,7 +20,7 @@ password = os.getenv("PASSWORD")
 data = {"mailaddress": mail_address, "password": password}
 
 # リフレッシュトークンを取得 (キャッシュの有効期間は1週間)
-# @st.cache_data(ttl=604800)
+@st.cache_data(ttl=604800)
 def get_refresh_token(data):
     r_post = requests.post("https://api.jquants.com/v1/token/auth_user", data=json.dumps(data))
     return r_post.json()["refreshToken"]
@@ -27,7 +28,7 @@ def get_refresh_token(data):
 REFRESH_TOKEN = get_refresh_token(data)
 
 # IDトークンを取得 (キャッシュの有効期間は24時間)
-# @st.cache_data(ttl=86400)
+@st.cache_data(ttl=86400)
 def get_id_token(refresh_token):
     r_post = requests.post(f"https://api.jquants.com/v1/token/auth_refresh?refreshtoken={refresh_token}")
     return r_post.json()["idToken"]
@@ -76,7 +77,7 @@ st.write("")
 # ------------------------
 
 # 会社情報を取得
-# @st.cache_data
+@st.cache_data
 def get_info(security_code, inputed_end_date, headers):
     r = requests.get(f"https://api.jquants.com/v1/listed/info?code={security_code}&date={inputed_end_date}", headers=headers)
     return pd.DataFrame(r.json()["info"])
@@ -95,7 +96,7 @@ st.write("")
 # ------------------------
 
 # 株価四本値を取得
-# @st.cache_data
+@st.cache_data
 def get_daily_quotes(security_code, inputed_start_date, inputed_end_date, headers):
     r = requests.get(f"https://api.jquants.com/v1/prices/daily_quotes?code={security_code}&from={inputed_start_date}&to={inputed_end_date}", headers=headers)
     return pd.DataFrame(r.json()["daily_quotes"])
@@ -115,7 +116,7 @@ st.line_chart(st_trends)
 # ------------------------
 
 # 財務情報を取得
-# @st.cache_data
+@st.cache_data
 def get_statements(security_code, headers):
     r = requests.get(f"https://api.jquants.com/v1/fins/statements?code={security_code}", headers=headers)
     return pd.DataFrame(r.json()["statements"])
